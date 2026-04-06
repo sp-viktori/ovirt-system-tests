@@ -472,7 +472,9 @@ EOT
 
 # ost_run_tests [pytest args ...]
 ost_run_tests() {
-    ost_linters || return 1
+    if [[ -z "${OST_SKIP_LINTERS}" ]]; then
+        ost_linters || return 1
+    fi
 
     [[ "$1" == "--ost-coverage" ]] && { OST_COVERAGE_FLAG=$1; shift; }
     CUSTOM_REPOS_ARGS="$@"

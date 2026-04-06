@@ -1,0 +1,7 @@
+// Allow OST user to manage libvirt (polkit >= 0.106; replaces legacy .pkla in localauthority)
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.libvirt.unix.manage" &&
+        subject.user == "{{ ansible_facts['user_id'] }}") {
+        return polkit.Result.YES;
+    }
+});

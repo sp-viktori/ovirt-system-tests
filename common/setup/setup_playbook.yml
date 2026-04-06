@@ -129,7 +129,12 @@
         append: true
       become: true
 
-    - name: Allow user to manage libvirt
+    - name: Detect legacy polkit localauthority layout (removed on newer polkit / EL9 images)
+      ansible.builtin.stat:
+        path: /etc/polkit-1/localauthority/50-local.d
+      register: polkit_localauthority_dir
+
+    - name: Allow user to manage libvirt (legacy PolicyKit .pkla)
       ansible.builtin.template:
         dest: /etc/polkit-1/localauthority/50-local.d/ost-libvirt-{{ ansible_facts['user_id'] }}.pkla
         group: root
@@ -137,6 +142,25 @@
         owner: root
         src: ost-libvirt.pkla.in
       become: true
+      when: polkit_localauthority_dir.stat.exists
+
+    - name: Ensure polkit rules.d exists
+      ansible.builtin.file:
+        path: /etc/polkit-1/rules.d
+        state: directory
+        mode: "0755"
+      become: true
+      when: not polkit_localauthority_dir.stat.exists
+
+    - name: Allow user to manage libvirt (polkit JavaScript rules)
+      ansible.builtin.template:
+        dest: /etc/polkit-1/rules.d/49-ost-libvirt-{{ ansible_facts['user_id'] }}.rules
+        group: root
+        mode: '0644'
+        owner: root
+        src: ost-libvirt.rules.in
+      become: true
+      when: not polkit_localauthority_dir.stat.exists
 
     - name: Restart polkit
       ansible.builtin.systemd:

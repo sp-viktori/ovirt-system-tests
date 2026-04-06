@@ -60,6 +60,8 @@ You can use `--custom-repo` for verifying an oVirt patch:
 * Run the tests, e.g `./ost.sh run basic-suite-master centos9 --custom-repo=https://github.com/oVirt/ovirt-engine/pull/pr_number`
 You can pass this option multiple times to test more than 1 build at once.
 
+To skip the OST repository linter step (tox: flake8, pylint, black, etc.) and run only the integration tests—for example when validating another oVirt component and not changing OST itself—set `OST_SKIP_LINTERS=1` in the environment before `./ost.sh run`.
+
 The environment is left running after it finishes so that you can examine or further use the created environment.
 It is necessary to clean the environment up aftery every run with `./ost.sh destroy`.
 It is possible to prevent accidental destroying with `./ost.sh lock Some reason`. If done, `destroy` fails with a message.
